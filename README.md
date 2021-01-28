@@ -1,70 +1,392 @@
-# Getting Started with Create React App
+1. Npm install redux
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+2. Npm install react-redux
 
-## Available Scripts
+3. Prep store
 
-In the project directory, you can run:
+```js
+import React from "react";
+import ReactDOM from "react-dom";
+import "./index.css";
+import App from "./App";
+import { createStore } from "redux";
+import { Provider } from "react-redux";
+const store = createStore();
+ReactDOM.render(
+  <Provider store={store}>
+    <App />
+  </Provider>,
+  document.getElementById("root")
+);
+```
 
-### `npm start`
+4. Make reducer (reducers / Counter.js)
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```js
+const reducer = (state = initialState, action) => {
+  return state;
+};
+const initialState = {
+  counter: 0,
+};
+export default reducer;
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+5. Connect reducer with the store
 
-### `npm test`
+```js
+import counterReducer from "./reducers/Counter.js";
+const store = createStore(counterReducer);
+```
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+6. Connect Counter.js with the state (useSelector)
 
-### `npm run build`
+```js
+import React from "react";
+import { useSelector } from "react-redux";
+const Counter = () => {
+  const counter = useSelector((state) => state.counter);
+  return (
+    <div>
+      <h1>Counter: {counter}</h1>
+    </div>
+  );
+};
+export default Counter;
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+7. Add buttons if there is no buttons yet in Counter.js
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+8. Add actions
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```js
+export const INCREASE = "INCREASE";
+```
 
-### `npm run eject`
+9. Add dispatchers
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+```js
+import { useSelector, useDispatch } from "react-redux";
+import \* as actionTypes from "../actions";
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+const increase = () => ({ type: actionTypes.INCREASE }); //note that you can do it directly to the onclick also
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+const Counter = () => {
+const dispatch = useDispatch();
+return (
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+<div>
+<h1>Counter: {counter}</h1>
+<button onClick={() => dispatch(increase())}>Increase one</button>
+</div>
+);
+};
+export default Counter;
+```
 
-## Learn More
+10. Edit reducer
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```js
+const reducer = (state = initialState, action) => {
+switch (action.type) {
+case actionTypes.INCREASE:
+return { ...state, counter: state.counter + 1 };
+return state;
+};
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+11. Add all other buttons also. But before that. Let's clean actions. It will start look messy and should not be in Counter.
 
-### Code Splitting
+Actions.js
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+```js
+export const INCREASE = "INCREASE";
 
-### Analyzing the Bundle Size
+export const increase = () => ({ type: INCREASE });
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+Counter.js
 
-### Making a Progressive Web App
+```js
+import { increase } from "../actions/actions";
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+12. Make all buttons
 
-### Advanced Configuration
+Counter.js
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+```js
+import { increase, decrease, add, remove, reset } from "../actions/actions";
 
-### Deployment
+<button onClick={() => dispatch(increase())}>Increase one</button>
+<button onClick={() => dispatch(decrease())}>Decrease one</button>
+<button onClick={() => dispatch(add())}>Add five</button>
+<button onClick={() => dispatch(remove())}>Remove five</button>
+<button onClick={() => dispatch(reset())}>Reset</button>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+Reducer.js
 
-### `npm run build` fails to minify
+```js
+switch (action.type) {
+case actionTypes.INCREASE:
+return { ...state, counter: state.counter + 1 };
+case actionTypes.DECREASE:
+return { ...state, counter: state.counter - 1 };
+case actionTypes.ADD:
+return { ...state, counter: state.counter + 5 };
+case actionTypes.REMOVE:
+return { ...state, counter: state.counter - 5 };
+}
+return state;
+};
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Actions.js
+
+```js
+export const INCREASE = "INCREASE";
+export const DECREASE = "DECREASE";
+export const ADD = "ADD";
+export const REMOVE = "REMOVE";
+export const RESET = "RESET";
+export const increase = () => ({
+  type: INCREASE,
+});
+export const decrease = () => ({
+  type: DECREASE,
+});
+export const add = () => ({
+  type: ADD,
+});
+export const remove = () => ({
+  type: REMOVE,
+});
+export const reset = () => ({
+  type: RESET,
+});
+```
+
+13. Currently we do add and remove 5 manually. Quite bad idea. Remember with actions you can send whatever to reducer? Modify your actions and send data out as action.value
+
+```js
+Actions.js;
+export const increase = () => ({
+  type: INCREASE,
+});
+export const decrease = () => ({
+  type: DECREASE,
+});
+export const add = () => ({
+  type: ADD,
+  value: 5,
+});
+export const remove = () => ({
+  type: REMOVE,
+  value: 5,
+});
+export const reset = () => ({
+  type: RESET,
+});
+```
+
+Reducer.js
+
+```js
+switch (action.type) {
+  case actionTypes.INCREASE:
+    return { ...state, counter: state.counter + 1 };
+  case actionTypes.DECREASE:
+    return { ...state, counter: state.counter - 1 };
+  case actionTypes.ADD:
+    return { ...state, counter: state.counter + action.value };
+  case actionTypes.REMOVE:
+    return { ...state, counter: state.counter - action.value };
+  case actionTypes.RESET:
+    return { ...state, counter: 0 };
+}
+```
+
+14. Next step is to store results. For that add button and list placeholder for store results
+
+```js
+import React from "react";
+const Results = () => {
+  return (
+    <div>
+      <button>Store results</button>
+      <ul>
+        <li>Here will be our list</li>
+      </ul>
+    </div>
+  );
+};
+export default Results;
+```
+
+15. Make (test) array to resultReducer.js
+
+```js
+const reducer = (state = initialState, action) => {
+  return state;
+};
+const initialState = {
+  results: [
+    { id: "1", value: "Meie kassil kriimud silmad" },
+    { id: "2", value: "kutsus lapsi lugema" },
+  ],
+};
+export default reducer;
+```
+
+16. Combine reducers in index.js
+
+```js
+import { createStore, combineReducers } from "redux";
+import counterReducer from "./reducers/counterReducer.js";
+import resultsReducer from "./reducers/resultsReducer.js";
+const rootReducer = combineReducers({
+  counter: counterReducer,
+  results: resultsReducer,
+});
+const store = createStore(rootReducer);
+```
+
+17. Show results in list:
+
+```js
+import { useSelector } from "react-redux";
+
+const Results = () => {
+  const results = useSelector((state) => state.results.results);
+  return (
+    <div>
+      <button>Store results</button>
+      <ul>
+        {results.map((item) => (
+          <li key={item.id}>{item.value}</li>
+        ))}
+      </ul>
+    </div>
+  );
+};
+export default Results;
+```
+
+Fix also counter.js
+
+```js
+const counter = useSelector((state) => state.counter.counter);
+```
+
+18. Make actions
+
+```js
+export const STORE_RESULTS = "STORE_RESULTS";
+
+export const storeResult = () => ({ type: STORE_RESULTS });
+```
+
+19. Add dispatchers
+
+```js
+import { useSelector, useDispatch } from "react-redux";
+import { storeResult } from "../actions/actions";
+
+const Results = () => {
+const results = useSelector((state) => state.results.results);
+const dispatch = useDispatch();
+
+return (
+<div>
+<button onClick={() => dispatch(storeResult())}>Store results</button>
+<ul>
+{results.map((item) => (
+<li key={item.id}>{item.value}</li>
+))}
+</ul>
+</div>
+```
+
+20. Check current counter and send it to action as value
+
+```js
+const currentState = useSelector((state) => state.counter.counter);
+
+return (
+<div>
+<button onClick={() => dispatch(storeResult(currentState))}>
+Store results
+</button>
+```
+
+21. Take data as value in actions.js
+
+```js
+export const storeResult = (currentState) => ({
+  type: STORE_RESULTS,
+  value: currentState,
+});
+```
+
+22. Modify resultsReducer.js
+
+```js
+import \* as actionTypes from "../actions/actions";
+
+const reducer = (state = initialState, action) => {
+switch (action.type) {
+case actionTypes.STORE_RESULTS:
+return {
+...state,
+results: state.results.concat({
+id: new Date(),
+value: action.value,
+}),
+};
+}
+return state;
+};
+const initialState = {
+results: [
+{ id: "1", value: "Meie kassil kriimud silmad" },
+{ id: "2", value: "kutsus lapsi lugema" },
+],
+};
+export default reducer;
+```
+
+23. Remove items from array. First edit actions.js
+
+```js
+export const DELETE_RESULTS = "DELETE_RESULTS";
+
+export const deleteResult = (id) => ({
+  type: DELETE_RESULTS,
+  id: id,
+});
+```
+
+24. Send out id of the item id
+
+```js
+import { storeResult, deleteResult } from "../actions/actions";
+
+<li onClick={() => dispatch(deleteResult(item.id))} key={item.id}>
+  {item.value}
+</li>;
+```
+
+25. Update resultsReducer.js
+
+```js
+case actionTypes.DELETE_RESULTS:
+const updatedArray = state.results.filter(
+(result) => result.id !== action.id
+);
+return {
+...state,
+results: updatedArray,
+};
+}
+```
